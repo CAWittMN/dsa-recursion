@@ -52,7 +52,61 @@ function makeBoard(boardString) {
 
 function find(board, word) {
   /** Can word be found in board? */
-  // TODO
+
+  // For each letter, see if we can find word starting from that letter
+
+  for (let y = 0; y < board.length; y++) {
+    for (let x = 0; x < board[0].length; x++) {
+      if (findFrom(board, word, x, y, [])) return true;
+    }
+  }
+
+  return false;
+}
+
+function findFrom(board, word, x, y, visited) {
+  /** Can we find word, starting at x, y? */
+
+  // Base case: this isn't the letter we're looking for.
+
+  if (board[y][x] !== word[0]) return false;
+
+  // Base case: we've used this letter before in this current path
+
+  if (visited.includes(`${x},${y}`)) return false;
+
+  // Base case: we've used up all the letters: we're done!
+
+  if (word.length === 1) return true;
+
+  // Otherwise, this letter is good, so note that we've visited it
+
+  visited.push(`${x},${y}`);
+
+  // And try each of its neighbors
+
+  for (let dy = -1; dy <= 1; dy++) {
+    for (let dx = -1; dx <= 1; dx++) {
+      if (dx === 0 && dy === 0) continue;
+
+      let newx = x + dx;
+      let newy = y + dy;
+
+      // If we haven't used this letter in this word yet,
+      // and we can find the rest of the word starting here -- cool!
+
+      if (
+        !visited.includes(`${newx},${newy}`) &&
+        findFrom(board, word.slice(1), newx, newy, visited)
+      ) {
+        return true;
+      }
+    }
+  }
+
+  // Otherwise, we didn't find the word
+
+  return false;
 }
 
 // EXAMPLE TEST
@@ -97,3 +151,5 @@ const board2 = makeBoard(`E D O S Z
                           F A D P L`);
 
 console.log(find(board2, "NOOOOS"), true);
+
+module.exports = { makeBoard, find, findFrom };
